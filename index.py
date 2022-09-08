@@ -3,48 +3,82 @@ import csv
 # m and n are the SLA assessment threshhold
 m = 100
 n = 95
-counter = 0
+above_counter = 0
+within_counter = 0
+below_counter = 0
 MIN_REPUTATION = 1
 MAX_REPUTATION = 5
-
-# class EFN_Reputation:
 
 def calc_res_time(row):
     current_reputation = int(row[0])
     sla_time = round(float(row[2]), 2)
-    for cell in range(3, len(row) - 1):
-        sla_percentage = (sla_time / round(float(row[cell]), 2)) * 100    
+    for cell in range(3, len(row)):
+
+        # The difference between expected response time and measured response time in percentage
+        sla_percentage = (sla_time / round(float(row[cell]), 2)) * 100
+
+        # Above threshold
         if (sla_percentage >= m):
-            counter = 0
-            if (current_reputation < MAX_REPUTATION):
-                current_reputation + 1
+            current_reputation = process_above_threshold(current_reputation)
+            
+        # Within threshold    
         elif (sla_percentage > n and sla_percentage < m):
-            counter = counter + 1
-            if(counter < 4):
-                current_reputation + 0
-            else:
-                counter = 0
-                current_reputation - 1
+            current_reputation = process_within_threshold(current_reputation)
+
+        # Below threshold    
         elif (sla_percentage <= n):
-            counter = 0
-            if( current_reputation > MIN_REPUTATION):
-                current_reputation - 1
+            current_reputation = process_below_threshold(current_reputation)
     
     return current_reputation
 
-# def cal_reputation(self, current_rep, sla_based_point):
-#     if(current_rep == 1 and sla_based_point == -1):
-#         return 1
-#     elif(current_rep == 5 and sla_based_point == 1):
-#         return 5
-#     else:
-#         return current_rep + sla_based_point
+def process_above_threshold(reputation):
+    # global above_counter
+    global above_counter
 
-# efn_instance = EFN_Reputation()
+    if(reputation < MAX_REPUTATION - 1):
+        reputation = reputation + 1
+    elif(reputation == MAX_REPUTATION - 1 and above_counter < 4):
+        above_counter = increment_counter(above_counter)
+    elif(reputation == MAX_REPUTATION - 1 and above_counter == 4):
+        above_counter = reset_counter(above_counter)
+        reputation = MAX_REPUTATION
+    
+    return reputation
         
+def process_within_threshold(reputation):
+    global within_counter
+    if(within_counter < 4): 
+        within_counter = increment_counter(within_counter)
+    elif(within_counter == 4):
+        within_counter = 0
+        reputation = reputation - 1
+    
+    return reputation
 
+def reset_counter(counter):
+    counter = 0
+    return counter
 
-with open('objective_4_input.csv', 'r') as csvfile:
+def increment_counter(counter):
+    counter = counter + 1
+    return counter
+
+def decrement_counter(counter):
+    counter = counter - 1
+    return counter
+
+def process_below_threshold(reputation):
+    global below_counter
+    if(reputation > MIN_REPUTATION):
+        reputation = reputation - 1
+    elif(reputation == MIN_REPUTATION and below_counter < 4):
+        below_counter = increment_counter(below_counter)
+    elif(reputation == MIN_REPUTATION and below_counter == 4):
+        reputation = 0
+    
+    return reputation
+
+with open('test_input.csv', 'r') as csvfile:
     spamreader = csv.reader(csvfile)
     next(spamreader)
     next(spamreader)
