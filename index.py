@@ -9,7 +9,7 @@ below_counter = 0
 MIN_REPUTATION = 1
 MAX_REPUTATION = 5
 
-
+# res_time_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 def calc_res_time(row, index, indexRange):
     current_reputation = int(row[0])
     sla_time = round(float(row[2]), 2)
