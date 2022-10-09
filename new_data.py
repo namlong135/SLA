@@ -1,5 +1,5 @@
 # import pandas with shortcut 'pd'
-import pandas as pd
+# import pandas as pd
 import csv
 
 # m and n are the SLA assessment threshhold
@@ -12,6 +12,7 @@ MIN_REPUTATION = 1
 MAX_REPUTATION = 5
 # INITIAL_REPUTATION = 1
 
+MOCK_DATA = [0.22, 0.31, 0.27, 0.25, 0.24, 0.27, 0.32, 0.35, 0.24, 0.25]
 
 def get_current_reputation(row):
     print(row)
@@ -43,7 +44,7 @@ def calc_res_time(row, index, indexRange):
             # Below threshold
             elif (sla_percentage <= n):
                 current_reputation = process_below_threshold(
-                    current_reputation)
+                    current_reputation) 
 
     # Calculate reputation of a single row with a specific index
     elif (index is not None and indexRange is None):
@@ -149,20 +150,29 @@ def write_to_csv(csv_file, data):
 
 # return the average of a tuple
 
+def assess_percentage(percentage):
+    if(percentage >= m):
+        return "above"
+    elif(percentage > n and percentage < m):
+        return "within"
+    elif(percentage <= n):
+        return "below"
 
-def cal_avg(data_tuple):
-    average = round(sum(data_tuple) / len(data_tuple), 2)
+def cal_avg(data_list):
+    average = round(sum(data_list) / len(data_list), 2)
     return average
 
-# To calculate the percentage of the differnce between the expected response time and the measured response time
-# expected_res_time = [1, 2, 3]
-# measured_res_time = [(), (), ()]
+# Calculate the percentage of the differnce between the expected response time and the measured response time
+# expected_res_time = float
+# measured_res_time = []
 def calculate_res_time_percentage(measured_res_time, expected_res_time):
     # calculate the percentage of the difference between the expected response time and the measured response time
-    for i in range(len(expected_res_time)):
-        sla_time = expected_res_time[i]
-        for j in range(len(measured_res_time[i])):
-            sla_percentage = (sla_time / measured_res_time[i][j]) * 100
+    percentage_result = []
+    for i in range(len(measured_res_time)):
+        sla_percentage = (expected_res_time / measured_res_time[i]) * 100
+        percentage_result.append(sla_percentage)
+    return percentage_result
+
 # These functions below will need to be changed if different csv files are used
 
 # Read the given csv file and write the calculated average res time to another file called "average.csv"
@@ -173,20 +183,22 @@ def get_average(csv_file_path):
         # read to columns
         data = list(zip(*[map(float, row) for row in spamreader]))
         average_list = [cal_avg(column) for column in data]
-        write_to_csv("average.csv", average_list)
-
+        print(average_list)
+        # write_to_csv("average.csv", average_list)
+        
 # Read the given csv file and format it to a usable format
 
-def format_input_csv_file(csv_file_path):
-    # read_csv function which is used to read the required CSV file
-    data = pd.read_csv(csv_file_path)
-    # drop function which is used in removing columns from the CSV files
-    data.drop(data.columns[0], axis=1, inplace=True)
-    # write_to_csv("formatted_csv_file.csv", data)
-    data.to_csv("formatted_csv_file.csv", sep=',', index=False)
+# def format_input_csv_file(csv_file_path):
+#     # Read_csv function which is used to read the required CSV file
+#     data = pd.read_csv(csv_file_path)
+#     # drop function which is used in removing columns from the CSV files
+#     data.drop(data.columns[0], axis=1, inplace=True)
+#     # write_to_csv("formatted_csv_file.csv", data)
+#     data.to_csv("formatted_csv_file.csv", sep=',', index=False)
 
 
-get_average("formatted_csv_file.csv")
+# print(cal_avg(MOCK_DATA))
+# print(calculate_res_time_percentage(MOCK_DATA, 0.27))
 # test = format_input_csv_file("Book1.csv")
 
 # Calculate the average response time of a column and write it to a csv file called "average_sla_res_time.csv"
