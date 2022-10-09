@@ -114,14 +114,14 @@ def write_to_csv(csv_file, data):
     for i in range(len(max(data, key=len))):
       header.append("service " + str(i+1))
     return header
+
+  temp_data = [get_header()]
+  temp_data.extend(data)
+
   file = open(csv_file, 'w', newline ='')
   with file:   
-    writer = csv.DictWriter(file, fieldnames = get_header())
-    writer.writeheader()
-    file = open(csv_file, 'a+', newline ='')
-  with file:   
     writer = csv.writer(file)
-    writer.writerows(data)
+    writer.writerows(zip(*temp_data))
 
 # In case you want to skip the row(s) of the csv file, specify the number of rows you want to skip
 # Will not work if we not using python 'csv' module
