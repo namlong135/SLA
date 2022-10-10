@@ -6,8 +6,10 @@ n = 95
 above_counter = 0
 within_counter = 0
 below_counter = 0
+INITIAL_REPUTATION = 3
 MIN_REPUTATION = 1
 MAX_REPUTATION = 5
+POINT_ELIGIBILITY = 4
 list_of_average = []
 list_of_percentage = []
 list_of_reputation = []
@@ -53,9 +55,9 @@ def process_above_threshold(reputation):
 
     if (reputation < MAX_REPUTATION - 1):
         reputation = reputation + 1
-    elif (reputation == MAX_REPUTATION - 1 and above_counter < 4):
+    elif (reputation == MAX_REPUTATION - 1 and above_counter < POINT_ELIGIBILITY):
         above_counter = increment_counter(above_counter)
-    elif (reputation == MAX_REPUTATION - 1 and above_counter == 4):
+    elif (reputation == MAX_REPUTATION - 1 and above_counter == POINT_ELIGIBILITY):
         above_counter = reset_counter(above_counter)
         reputation = MAX_REPUTATION
 
@@ -64,9 +66,9 @@ def process_above_threshold(reputation):
 
 def process_within_threshold(reputation):
     global within_counter
-    if (within_counter < 4):
+    if (within_counter < POINT_ELIGIBILITY):
         within_counter = increment_counter(within_counter)
-    elif (within_counter == 4):
+    elif (within_counter == POINT_ELIGIBILITY):
         within_counter = 0
         reputation = reputation - 1
 
@@ -77,9 +79,9 @@ def process_below_threshold(reputation):
     global below_counter
     if (reputation > MIN_REPUTATION):
         reputation = reputation - 1
-    elif (reputation == MIN_REPUTATION and below_counter < 4):
+    elif (reputation == MIN_REPUTATION and below_counter < POINT_ELIGIBILITY):
         below_counter = increment_counter(below_counter)
-    elif (reputation == MIN_REPUTATION and below_counter == 4):
+    elif (reputation == MIN_REPUTATION and below_counter == POINT_ELIGIBILITY):
         reputation = 0
 
     return reputation
@@ -143,7 +145,7 @@ def main():
     for row in spamreader:
       formatted_row = remove_negative_value_in_row(row)
       # Assume initial reputation of all service is 1
-      current_reputation = MIN_REPUTATION
+      current_reputation = INITIAL_REPUTATION
       # Calculate the average response time of the service and store all the average in a list
       temp_avg = cal_avg(formatted_row)
       list_of_average.append(cal_avg(formatted_row))
