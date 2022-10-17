@@ -1,4 +1,5 @@
 import csv
+from itertools import zip_longest
 
 # m and n are the SLA assessment threshhold
 m = 100
@@ -65,13 +66,14 @@ def process_above_threshold(reputation):
 
 
 def process_within_threshold(reputation):
-    global within_counter
-    if (within_counter < POINT_ELIGIBILITY):
-        within_counter = increment_counter(within_counter)
-    elif (within_counter == POINT_ELIGIBILITY):
-        within_counter = 0
-        reputation = reputation - 1
-
+    # global within_counter
+    # if (within_counter < POINT_ELIGIBILITY):
+    #     within_counter = increment_counter(within_counter)
+    # elif (within_counter == POINT_ELIGIBILITY):
+    #     within_counter = 0
+    #     reputation = reputation - 1
+    reset_counter(above_counter)
+    reset_counter(below_counter)
     return reputation
 
 
@@ -82,6 +84,7 @@ def process_below_threshold(reputation):
     elif (reputation == MIN_REPUTATION and below_counter < POINT_ELIGIBILITY):
         below_counter = increment_counter(below_counter)
     elif (reputation == MIN_REPUTATION and below_counter == POINT_ELIGIBILITY):
+        reset_counter(below_counter)
         reputation = 0
 
     return reputation
@@ -105,7 +108,7 @@ def decrement_counter(counter):
 # If there's negative value within the row, remove it
 def remove_negative_value_in_row(row):
   for i in range (len(row)):
-    if(float(row[i]) <= 0):
+    if(i < len(row) and float(row[i]) <= 0):
       del row[i]
   return row
 
@@ -113,17 +116,19 @@ def remove_negative_value_in_row(row):
 def write_to_csv(csv_file, data):
   header = []
   def get_header():
-    for i in range(len(max(data, key=len))):
+    # for i in range(len(max(data, key=len))):
+    for i in range(len(data)):
       header.append("service " + str(i+1))
     return header
-
-  temp_data = [get_header()]
-  temp_data.extend(data)
-
   file = open(csv_file, 'w', newline ='')
   with file:   
     writer = csv.writer(file)
-    writer.writerows(zip(*temp_data))
+
+    # Write the header
+    writer.writerow(get_header())
+    # Write the data
+    writer.writerows(zip_longest(*data))
+
 
 # In case you want to skip the row(s) of the csv file, specify the number of rows you want to skip
 # Will not work if we not using python 'csv' module
@@ -148,23 +153,26 @@ def main():
       current_reputation = INITIAL_REPUTATION
       # Calculate the average response time of the service and store all the average in a list
       temp_avg = cal_avg(formatted_row)
-      list_of_average.append(cal_avg(formatted_row))
+      list_of_average.append(temp_avg)
       # Calculate the percentage of the difference between the expected response time and the measured response time
       temp_percentage = calculate_res_time_percentage(formatted_row, temp_avg)
       list_of_percentage.append(temp_percentage)
       temp_row_reputation = []
 
       for item in temp_percentage:
-        if(assess_percentage(item) == "above"):
+        percentageAssessment = assess_percentage(item)
+        if(current_reputation == 0):
+          temp_row_reputation.append(0)
+        elif(percentageAssessment == "above"):
           current_reputation = process_above_threshold(current_reputation)
           temp_row_reputation.append(current_reputation)
-        elif(assess_percentage(item) == "within"):
+        elif(percentageAssessment == "within"):
           current_reputation = process_within_threshold(current_reputation)
           temp_row_reputation.append(current_reputation)
-        elif(assess_percentage(item) == "below"):
+        elif(percentageAssessment == "below"):
           current_reputation = process_below_threshold(current_reputation)
           temp_row_reputation.append(current_reputation)
       list_of_reputation.append(temp_row_reputation)
     write_to_csv("reputation_record.csv", list_of_reputation)
-      
+
 main()
