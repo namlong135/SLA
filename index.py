@@ -1,5 +1,6 @@
 import csv
 from itertools import zip_longest
+import pandas as pd
 
 # m and n are the SLA assessment threshhold
 m = 100
@@ -156,42 +157,60 @@ def skip_rows(csv_file, skip):
 # So if there is a new csv file format, the program will not be able to read it.
 
 
+def compute_reputation(percentageAssessment, current_reputation, temp_row_reputation):
+    if (current_reputation == 0):
+        temp_row_reputation.append(0)
+    elif (percentageAssessment == ABOVE):
+        current_reputation = process_above_threshold(
+            current_reputation)
+        temp_row_reputation.append(current_reputation)
+    elif (percentageAssessment == WITHIN):
+        current_reputation = process_within_threshold(
+            current_reputation)
+        temp_row_reputation.append(current_reputation)
+    elif (percentageAssessment == BELOW):
+        current_reputation = process_below_threshold(
+            current_reputation)
+        temp_row_reputation.append(current_reputation)
+
+
 def main():
     with open('./temp/transposed_data.csv', 'r') as csvfile:
         spamreader = csv.reader(csvfile)
         # Loop through each row in the csv file
         for row in spamreader:
+            # Initialize the temporary lists
+            # These list represent a single row in the csv file
+            # E.g: temp_avg will be the average of a single row from the csv file.
+            # However, we store it in a list for the purpose of writing to csv file
+            temp_row_reputation = []
+            temp_avg = []
+            temp_percentage = []
+            # If there is negative value, we remove it
             formatted_row = remove_negative_value_in_row(row)
             # Assume initial reputation of all service is 1
             current_reputation = INITIAL_REPUTATION
             # Calculate the average response time of the service and store all the average in a list
+            # This means that the temp_avg list will contain the average of all the service in a single row
             temp_avg = cal_avg(formatted_row)
+            # after calculating the average of a SINGLE row, we append it to the "list_of_average" list, which later will be written to csv file
             list_of_average.append(temp_avg)
             # Calculate the percentage of the difference between the expected response time and the measured response time
             temp_percentage = calculate_res_time_percentage(
                 formatted_row, temp_avg)
             list_of_percentage.append(temp_percentage)
-            temp_row_reputation = []
 
             for item in temp_percentage:
                 percentageAssessment = assess_percentage(item)
-                if (current_reputation == 0):
-                    temp_row_reputation.append(0)
-                elif (percentageAssessment == ABOVE):
-                    current_reputation = process_above_threshold(
-                        current_reputation)
-                    temp_row_reputation.append(current_reputation)
-                elif (percentageAssessment == WITHIN):
-                    current_reputation = process_within_threshold(
-                        current_reputation)
-                    temp_row_reputation.append(current_reputation)
-                elif (percentageAssessment == BELOW):
-                    current_reputation = process_below_threshold(
-                        current_reputation)
-                    temp_row_reputation.append(current_reputation)
+                compute_reputation(percentageAssessment,
+                                   current_reputation, temp_row_reputation)
             list_of_reputation.append(temp_row_reputation)
-        write_to_csv("./records/reputation_record.csv", list_of_reputation)
-        write_to_csv("./records/average_record.csv", [list_of_average])
+        write_to_csv("./records/reputation_record.csv",
+                     list_of_reputation)
+        write_to_csv("./records/average_record.csv",
+                     [list_of_average])
+        write_to_csv("./records/percentage_record.csv",
+                     list_of_percentage)
 
 
 main()

@@ -13,7 +13,7 @@ def format_input_csv_file(csv_file_path):
     # write_to_csv("formatted_csv_file1.csv", data)
     data.to_csv("./temp/raw1.csv", sep=',', index=False, header=False)
 
-# transpose the formatted csv file from column to row and write it to another file called "formatted_csv_file2.csv"
+# transpose the formatted csv file from column to row and write it to another file with the name passed in the parameter "output_file_name"
 # output a file called "transposed_data.csv" which is the transpose of the "raw1" csv file
 def transpose_csv_file(input_csv_file_path, output_csv_file_path):
     test = csv.reader(open(input_csv_file_path, "r"))
@@ -22,5 +22,5 @@ def transpose_csv_file(input_csv_file_path, output_csv_file_path):
 
 
 transpose_csv_file("./temp/raw1.csv", "./temp/transposed_data.csv")
-format_input_csv_file("rtMatrix.csv")
+format_input_csv_file("test_csv.csv")
 
