@@ -115,11 +115,8 @@ def decrement_counter(counter):
 # If there's negative value within the row, remove it
 
 
-def remove_negative_value_in_row(row):
-    for i in range(len(row)):
-        if (i < len(row) and float(row[i]) <= 0):
-            del row[i]
-    return row
+def remove_negative_value_in_row(data):
+    return [ele for ele in data if float(ele) > 0]
 
 # Currently, this purpose of this function is to create a record of reputation value for each row
 
@@ -158,20 +155,24 @@ def skip_rows(csv_file, skip):
 
 
 def compute_reputation(percentageAssessment, current_reputation, temp_row_reputation):
-    if (current_reputation == 0):
+    if not temp_row_reputation:
+        curr = current_reputation
+    else:
+        curr = temp_row_reputation[-1]
+    if (curr == 0):
         temp_row_reputation.append(0)
     elif (percentageAssessment == ABOVE):
-        current_reputation = process_above_threshold(
-            current_reputation)
-        temp_row_reputation.append(current_reputation)
+        curr = process_above_threshold(
+            curr)
+        temp_row_reputation.append(curr)
     elif (percentageAssessment == WITHIN):
-        current_reputation = process_within_threshold(
-            current_reputation)
-        temp_row_reputation.append(current_reputation)
+        curr = process_within_threshold(
+            curr)
+        temp_row_reputation.append(curr)
     elif (percentageAssessment == BELOW):
-        current_reputation = process_below_threshold(
-            current_reputation)
-        temp_row_reputation.append(current_reputation)
+        curr = process_below_threshold(
+            curr)
+        temp_row_reputation.append(curr)
 
 
 def main():
@@ -182,7 +183,7 @@ def main():
             # Initialize the temporary lists
             # These list represent a single row in the csv file
             # E.g: temp_avg will be the average of a single row from the csv file.
-            # However, we store it in a list for the purpose of writing to csv file
+            # The reason why we store it in a list although there's a single value sometimes is for the purpose of writing to csv file
             temp_row_reputation = []
             temp_avg = []
             temp_percentage = []
@@ -204,7 +205,7 @@ def main():
                 percentageAssessment = assess_percentage(item)
                 compute_reputation(percentageAssessment,
                                    current_reputation, temp_row_reputation)
-            list_of_reputation.append(temp_row_reputation)
+        list_of_reputation.append(temp_row_reputation)
         write_to_csv("./records/reputation_record.csv",
                      list_of_reputation)
         write_to_csv("./records/average_record.csv",
