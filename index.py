@@ -28,6 +28,8 @@ MOCK_DATA = [0.22, 0.31, 0.27, 0.25, 0.24, 0.27, 0.32, 0.35, 0.24, 0.25]
 
 def cal_avg(data_list):
     sum = 0
+    if not data_list:
+        return 0
     for item in data_list:
         sum += float(item)
     avg = round(sum / len(data_list), 2)
@@ -157,6 +159,7 @@ def skip_rows(csv_file, skip):
 def compute_reputation(percentageAssessment, current_reputation, temp_row_reputation):
     if not temp_row_reputation:
         curr = current_reputation
+        temp_row_reputation.append(curr)
     else:
         curr = temp_row_reputation[-1]
     if (curr == 0):
@@ -173,6 +176,7 @@ def compute_reputation(percentageAssessment, current_reputation, temp_row_reputa
         curr = process_below_threshold(
             curr)
         temp_row_reputation.append(curr)
+    return temp_row_reputation
 
 
 def main():
@@ -205,12 +209,13 @@ def main():
                 percentageAssessment = assess_percentage(item)
                 compute_reputation(percentageAssessment,
                                    current_reputation, temp_row_reputation)
-        list_of_reputation.append(temp_row_reputation)
-        write_to_csv("./records/reputation_record.csv",
+                list_of_reputation.append(compute_reputation(percentageAssessment,
+                                          current_reputation, temp_row_reputation))
+        write_to_csv("./output/reputation_record.csv",
                      list_of_reputation)
-        write_to_csv("./records/average_record.csv",
+        write_to_csv("./output/average_record.csv",
                      [list_of_average])
-        write_to_csv("./records/percentage_record.csv",
+        write_to_csv("./output/percentage_record.csv",
                      list_of_percentage)
 
 
