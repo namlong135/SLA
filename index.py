@@ -209,7 +209,7 @@ def main():
                 percentageAssessment = assess_percentage(item)
                 compute_reputation(percentageAssessment,
                                    current_reputation, temp_row_reputation)
-                list_of_reputation.append(compute_reputation(percentageAssessment,
+            list_of_reputation.append(compute_reputation(percentageAssessment,
                                           current_reputation, temp_row_reputation))
         write_to_csv("./output/reputation_record.csv",
                      list_of_reputation)

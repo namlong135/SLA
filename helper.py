@@ -25,5 +25,5 @@ def transpose_csv_file(input_csv_file_path, output_csv_file_path):
     csv.writer(open(output_csv_file_path, "w")).writerows(a)
 
 
-format_input_csv_file("./input/input_csv_v3.csv")
+format_input_csv_file("./input/input_csv_v4.csv")
 transpose_csv_file("./temp/raw1.csv", "./temp/transposed_data.csv")
