@@ -66,7 +66,6 @@ def assess_percentage(percentage):
 
 
 def process_above_threshold(reputation):
-    # global above_counter
     global above_counter
 
     if (reputation < MAX_REPUTATION - 1):
@@ -74,34 +73,34 @@ def process_above_threshold(reputation):
     elif (reputation == MAX_REPUTATION - 1 and above_counter < POINT_ELIGIBILITY):
         above_counter = increment_counter(above_counter)
     elif (reputation == MAX_REPUTATION - 1 and above_counter == POINT_ELIGIBILITY):
-        above_counter = reset_counter(above_counter)
+        above_counter = reset_counter()
         reputation = MAX_REPUTATION
 
     return reputation
 
 
 def process_within_threshold(reputation):
-    reset_counter(above_counter)
-    reset_counter(below_counter)
+    above_counter = reset_counter()
+    below_counter = reset_counter()
     return reputation
 
 
 def process_below_threshold(reputation):
     global below_counter
+
     if (reputation > MIN_REPUTATION):
         reputation = reputation - 1
     elif (reputation == MIN_REPUTATION and below_counter < POINT_ELIGIBILITY):
         below_counter = increment_counter(below_counter)
     elif (reputation == MIN_REPUTATION and below_counter == POINT_ELIGIBILITY):
-        reset_counter(below_counter)
+        below_counter = reset_counter()
         reputation = 0
 
     return reputation
 
 
-def reset_counter(counter):
-    counter = 0
-    return counter
+def reset_counter():
+    return 0
 
 
 def increment_counter(counter):
@@ -184,6 +183,10 @@ def main():
         spamreader = csv.reader(csvfile)
         # Loop through each row in the csv file
         for row in spamreader:
+            global below_counter
+            global above_counter
+            above_counter = reset_counter()
+            below_counter = reset_counter()
             # Initialize the temporary lists
             # These list represent a single row in the csv file
             # E.g: temp_avg will be the average of a single row from the csv file.
@@ -210,7 +213,7 @@ def main():
                 compute_reputation(percentageAssessment,
                                    current_reputation, temp_row_reputation)
             list_of_reputation.append(compute_reputation(percentageAssessment,
-                                          current_reputation, temp_row_reputation))
+                                                         current_reputation, temp_row_reputation))
         write_to_csv("./output/reputation_record.csv",
                      list_of_reputation)
         write_to_csv("./output/average_record.csv",
