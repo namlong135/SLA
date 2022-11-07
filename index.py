@@ -55,11 +55,11 @@ def calculate_res_time_percentage(measured_res_time, expected_res_time):
 
 def assess_percentage(percentage):
     if (percentage >= m):
-        return "above"
+        return ABOVE
     elif (percentage > n and percentage < m):
-        return "within"
+        return WITHIN
     elif (percentage <= n):
-        return "below"
+        return BELOW
 
 # From line 49 to 100, these functions handle the reputation value of each service
 # They also keep count of the number of times the service is above, within, or below the SLA threshold
@@ -183,10 +183,6 @@ def main():
         spamreader = csv.reader(csvfile)
         # Loop through each row in the csv file
         for row in spamreader:
-            global below_counter
-            global above_counter
-            above_counter = reset_counter()
-            below_counter = reset_counter()
             # Initialize the temporary lists
             # These list represent a single row in the csv file
             # E.g: temp_avg will be the average of a single row from the csv file.
@@ -198,6 +194,11 @@ def main():
             formatted_row = remove_negative_value_in_row(row)
             # Assume initial reputation of all service is 1
             current_reputation = INITIAL_REPUTATION
+            # We wanted to reset the counter each time after we have moved to the next row
+            global below_counter
+            global above_counter
+            above_counter = reset_counter()
+            below_counter = reset_counter()
             # Calculate the average response time of the service and store all the average in a list
             # This means that the temp_avg list will contain the average of all the service in a single row
             temp_avg = cal_avg(formatted_row)
@@ -210,10 +211,9 @@ def main():
 
             for item in temp_percentage:
                 percentageAssessment = assess_percentage(item)
-                compute_reputation(percentageAssessment,
+                temp_reputation = compute_reputation(percentageAssessment,
                                    current_reputation, temp_row_reputation)
-            list_of_reputation.append(compute_reputation(percentageAssessment,
-                                                         current_reputation, temp_row_reputation))
+            list_of_reputation.append(temp_reputation)
         write_to_csv("./output/reputation_record.csv",
                      list_of_reputation)
         write_to_csv("./output/average_record.csv",
